@@ -4,11 +4,10 @@ exports.up = function (knex) {
   return knex.schema.createTable('users', function (table) {
     table.increments('id').primary()
 
-    table.string('name', 255).notNullable()
     table.string('username', 20).unique().notNullable()
     table.string('password', 100).notNullable()
 
-    table.enu('role', ['ROOT', 'ADMIN', 'USER']).notNullable()
+    table.enu('role', ['ROOT', 'ADMIN', 'USER'])
 
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now())
     table.timestamp('updated_at').notNullable().defaultTo(knex.fn.now())
