@@ -75,12 +75,7 @@ routes.delete(
 )
 
 // Items
-routes.get(
-  '/categories/:category_id/items',
-  auth,
-  permissions([roles.USER]),
-  ItemsController.index
-)
+routes.get('/categories/:category_id/items', auth, ItemsController.index)
 routes.post(
   '/categories/:category_id/items/create',
   auth,

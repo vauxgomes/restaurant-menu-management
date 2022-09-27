@@ -4,12 +4,15 @@ const knex = require('../database')
 module.exports = {
   // Index
   async index(req, res) {
-    const { category_id } = req.params
     const { id: user_id } = req.user
+    const { category_id } = req.params
 
     const items = await knex
       .select()
       .from('items')
+      .innerJoin('categories', 'items.category_id', 'categories.id')
+      .innerJoin('branches', 'categories.branch_id', 'branches.id')
+      .innerJoin('users', 'branches.user_id', 'users.id')
       .where({ category_id, user_id })
 
     return res.json(items)
