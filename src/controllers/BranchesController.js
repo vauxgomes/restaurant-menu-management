@@ -6,18 +6,21 @@ const { roles } = require('../middlewares/roles')
 module.exports = {
   // Index
   async index(req, res) {
-    const users = await knex.select('id', 'username', 'role').from('users')
-    return res.json(users)
+    const { id: user_id } = req.user
+    const branches = await knex.select().from('branches').where({ user_id })
+
+    return res.json(branches)
   },
 
   // Show
   async show(req, res) {
-    const { id } = req.user
+    const { id } = req.params
+    const { id: user_id } = req.user
 
     const user = await knex
-      .select('id', 'username', 'role')
-      .from('users')
-      .where('id', id)
+      .select()
+      .from('branches')
+      .where({ id, user_id })
       .first()
 
     return res.json(user)
@@ -26,14 +29,14 @@ module.exports = {
   // Create
   async create(req, res) {
     try {
-      let { username, password } = req.body
-      password = bcrypt.hashSync(password, Number(process.env.SALT))
+      const { user_id, name, address, img_url } = req.body
 
-      const [id] = await knex('users')
+      const [id] = await knex('branches')
         .insert({
-          username,
-          password,
-          role: roles.USER
+          user_id,
+          name,
+          address,
+          img_url
         })
         .returning('id')
 
@@ -41,36 +44,34 @@ module.exports = {
     } catch (err) {
       return res.status(400).json({
         success: false,
-        message: 'user.create.nok'
+        message: 'branch.create.nok'
       })
     }
   },
 
   // Update
   async update(req, res) {
-    const { id } = req.user
-    let { username, password } = req.body
-
-    if (password) {
-      password = bcrypt.hashSync(password, Number(process.env.SALT))
-    }
+    const { id } = req.params
+    const { id: user_id } = req.user
+    const { name, address, img_url } = req.body
 
     try {
-      await knex('users')
+      await knex('branches')
         .update({
-          username,
-          password
+          name,
+          address,
+          img_url
         })
-        .where('id', id)
+        .where({ id, user_id })
 
       return res.status(200).send({
         success: true,
-        message: 'user.update.ok'
+        message: 'branch.update.ok'
       })
     } catch (err) {
       return res.status(400).send({
         success: true,
-        message: 'user.update.nok'
+        message: 'branch.update.nok'
       })
     }
   },
@@ -78,18 +79,19 @@ module.exports = {
   // DELETE
   async delete(req, res) {
     const { id } = req.params
+    const { id: user_id } = req.user
 
     try {
-      await knex('users').where('id', id).del()
+      await knex('branches').where({ id, user_id }).del()
 
       return res.status(200).send({
         success: true,
-        message: 'user.delete.ok'
+        message: 'branch.delete.ok'
       })
     } catch (err) {
       return res.status(400).send({
         success: false,
-        message: 'user.delete.nok'
+        message: 'branch.delete.nok'
       })
     }
   }

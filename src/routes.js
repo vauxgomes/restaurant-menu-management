@@ -8,15 +8,17 @@ const { roles, permissions } = require('./middlewares/roles')
 //
 const AccountsController = require('./controllers/AccountsController')
 const UsersController = require('./controllers/UsersController')
+const BranchesController = require('./controllers/BranchesController')
+
 const CategoriesController = require('./controllers/CategoriesController')
 const ItemsController = require('./controllers/ItemsController')
 
 const RestaurantsController = require('./controllers/RestaurantsController')
 
 // System
-routes.get('/', (req, res) => {
+routes.get('/sys', (req, res) => {
   return res.send({
-    system: 'Servidor Simples de Cardápios',
+    system: 'Servidor de Cardápios e Pedidos',
     version: 1.0,
     request_date: new Date().toLocaleString()
   })
@@ -26,27 +28,15 @@ routes.get('/', (req, res) => {
 routes.post('/login', AccountsController.register)
 
 // Users
-routes.get(
-  '/users/detail',
-  auth,
-  permissions([roles.ROOT, roles.USER]),
-  UsersController.show
-)
-routes.put(
-  '/users/update',
-  auth,
-  permissions([roles.ROOT, roles.USER]),
-  UsersController.update
-)
-
-// Users:ROOT
 routes.get('/users', auth, permissions([roles.ROOT]), UsersController.index)
+routes.get('/users/detail', auth, UsersController.show)
 routes.post(
   '/users/create',
   auth,
   permissions([roles.ROOT]),
   UsersController.create
 )
+routes.put('/users/update', auth, UsersController.update)
 routes.delete(
   '/users/:id/delete',
   auth,
@@ -54,29 +44,33 @@ routes.delete(
   UsersController.delete
 )
 
-// Categories
-routes.get(
-  '/categories',
-  auth,
-  permissions([roles.USER]),
-  CategoriesController.index
-)
+// Branches
+routes.get('/branches', auth, BranchesController.index)
+routes.get('/branches/:id/detail', auth, BranchesController.show)
 routes.post(
-  '/categories/create',
+  '/branches/create',
   auth,
-  permissions([roles.USER]),
+  permissions([roles.ROOT]),
+  BranchesController.create
+)
+routes.put('/branches/:id/update', auth, BranchesController.update)
+routes.delete('/branches/:id/delete', auth, BranchesController.delete)
+
+// Categories
+routes.get('/branches/:branch_id/categories', auth, CategoriesController.index)
+routes.post(
+  '/branches/:branch_id/categories/create',
+  auth,
   CategoriesController.create
 )
 routes.put(
-  '/categories/:id/update',
+  '/branches/:branch_id/categories/:id/update',
   auth,
-  permissions([roles.USER]),
   CategoriesController.update
 )
 routes.delete(
-  '/categories/:id/delete',
+  '/branches/:branch_id/categories/:id/delete',
   auth,
-  permissions([roles.USER]),
   CategoriesController.delete
 )
 
