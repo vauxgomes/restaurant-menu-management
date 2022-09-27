@@ -3,6 +3,7 @@ const routes = express.Router()
 
 // Middlewares
 const auth = require('./middlewares/auth')
+const { branchOwner, categoryOwner } = require('./middlewares/ownership')
 const { roles, permissions } = require('./middlewares/roles')
 
 //
@@ -57,41 +58,54 @@ routes.put('/branches/:id/update', auth, BranchesController.update)
 routes.delete('/branches/:id/delete', auth, BranchesController.delete)
 
 // Categories
-routes.get('/branches/:branch_id/categories', auth, CategoriesController.index)
+routes.get(
+  '/branches/:branch_id/categories',
+  auth,
+  branchOwner,
+  CategoriesController.index
+)
 routes.post(
   '/branches/:branch_id/categories/create',
   auth,
+  branchOwner,
   CategoriesController.create
 )
 routes.put(
   '/branches/:branch_id/categories/:id/update',
   auth,
+  branchOwner,
   CategoriesController.update
 )
 routes.delete(
   '/branches/:branch_id/categories/:id/delete',
   auth,
+  branchOwner,
   CategoriesController.delete
 )
 
 // Items
-routes.get('/categories/:category_id/items', auth, ItemsController.index)
-routes.post(
-  '/categories/:category_id/items/create',
+routes.get(
+  '/branches/:branch_id/categories/:category_id/items',
   auth,
-  permissions([roles.USER]),
+  categoryOwner,
+  ItemsController.index
+)
+routes.post(
+  '/branches/:branch_id/categories/:category_id/items/create',
+  auth,
+  categoryOwner,
   ItemsController.create
 )
 routes.put(
-  '/categories/:category_id/items/:id/update',
+  '/branches/:branch_id/categories/:category_id/items/:id/update',
   auth,
-  permissions([roles.USER]),
+  categoryOwner,
   ItemsController.update
 )
 routes.delete(
-  '/categories/:id/items/:id/delete',
+  '/branches/:branch_id/categories/:id/items/:id/delete',
   auth,
-  permissions([roles.USER]),
+  categoryOwner,
   ItemsController.delete
 )
 

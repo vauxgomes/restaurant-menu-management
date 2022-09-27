@@ -9,7 +9,7 @@ exports.seed = async function (knex) {
     role: roles.ROOT
   })
 
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 1; i <= 2; i++) {
     await knex('users').insert({
       username: `user_${i}`,
       password: bcrypt.hashSync('12345', Number(process.env.SALT)),

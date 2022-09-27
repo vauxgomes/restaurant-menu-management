@@ -9,6 +9,7 @@ exports.up = function (knex) {
 
     table.string('name').notNullable()
     table.string('description').notNullable()
+    table.double('price').notNullable()
 
     table.string('img_url')
     table.integer('order').notNullable().defaultTo(0)

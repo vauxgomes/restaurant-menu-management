@@ -1,6 +1,4 @@
-const bcrypt = require('bcrypt')
 const knex = require('../database')
-const { roles } = require('../middlewares/roles')
 
 // Controller
 module.exports = {

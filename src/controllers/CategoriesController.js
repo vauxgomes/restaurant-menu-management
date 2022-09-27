@@ -1,18 +1,16 @@
 const knex = require('../database')
-const bcrypt = require('bcrypt')
 
 // Controller
 module.exports = {
   // Index
   async index(req, res) {
-    const { id: user_id } = req.user
     const { branch_id } = req.params
 
     const categories = await knex
-      .select('categories.*')
+      .select()
       .from('categories')
-      .innerJoin('branches', 'categories.branch_id', 'branches.id')
-      .where({ user_id, branch_id })
+      .where({ branch_id })
+      .orderBy('order', 'asc')
 
     return res.json(categories)
   },
@@ -20,23 +18,8 @@ module.exports = {
   // Create
   async create(req, res) {
     try {
-      const { id: user_id } = req.user
       const { branch_id } = req.params
       const { name, order = 0 } = req.body
-
-      // Safety
-      const branch = await knex
-        .select()
-        .from('branches')
-        .where({ user_id, id: branch_id })
-        .first()
-
-      if (!branch) {
-        return res.status(400).json({
-          success: false,
-          message: 'action.denied'
-        })
-      }
 
       // Insert
       const [id] = await knex('categories')
@@ -58,23 +41,8 @@ module.exports = {
 
   // Update
   async update(req, res) {
-    const { id: user_id } = req.user
-    const { branch_id, id } = req.params
+    const { id, branch_id } = req.params
     const { name, order } = req.body
-
-    // Safety
-    const branch = await knex
-      .select()
-      .from('branches')
-      .where({ user_id, id: branch_id })
-      .first()
-
-    if (!branch) {
-      return res.status(400).json({
-        success: false,
-        message: 'action.denied'
-      })
-    }
 
     try {
       await knex('categories').update({ name, order }).where({ id, branch_id })
@@ -93,22 +61,7 @@ module.exports = {
 
   // DELETE
   async delete(req, res) {
-    const { id: user_id } = req.user
-    const { branch_id, id } = req.params
-
-    // Safety
-    const branch = await knex
-      .select()
-      .from('branches')
-      .where({ user_id, id: branch_id })
-      .first()
-
-    if (!branch) {
-      return res.status(400).json({
-        success: false,
-        message: 'action.denied'
-      })
-    }
+    const { id, branch_id } = req.params
 
     try {
       await knex('categories').where({ id, branch_id }).del()

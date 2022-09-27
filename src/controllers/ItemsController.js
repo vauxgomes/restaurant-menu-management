@@ -4,16 +4,8 @@ const knex = require('../database')
 module.exports = {
   // Index
   async index(req, res) {
-    const { id: user_id } = req.user
     const { category_id } = req.params
-
-    const items = await knex
-      .select()
-      .from('items')
-      .innerJoin('categories', 'items.category_id', 'categories.id')
-      .innerJoin('branches', 'categories.branch_id', 'branches.id')
-      .innerJoin('users', 'branches.user_id', 'users.id')
-      .where({ category_id, user_id })
+    const items = await knex.select().from('items').where({ category_id })
 
     return res.json(items)
   },
@@ -22,7 +14,6 @@ module.exports = {
   async create(req, res) {
     try {
       const { category_id } = req.params
-      const { id: user_id } = req.user
       const { name, description, price, img_url, order = 0 } = req.body
 
       const [id] = await knex('items')
@@ -32,13 +23,13 @@ module.exports = {
           price,
           img_url,
           order,
-          category_id,
-          user_id
+          category_id
         })
         .returning('id')
 
       return res.json(id)
     } catch (err) {
+      console.log(err)
       return res.status(400).json({
         success: false,
         message: 'item.create.nok'
@@ -48,8 +39,7 @@ module.exports = {
 
   // Update
   async update(req, res) {
-    const { category_id, id } = req.params
-    const { id: user_id } = req.user
+    const { id, category_id } = req.params
     const { name, description, price, img_url, order = 0 } = req.body
 
     try {
@@ -61,7 +51,7 @@ module.exports = {
           img_url,
           order
         })
-        .where({ id, category_id, user_id })
+        .where({ id, category_id })
 
       return res.status(200).send({
         success: true,
@@ -77,11 +67,10 @@ module.exports = {
 
   // DELETE
   async delete(req, res) {
-    const { category_id, id } = req.params
-    const { id: user_id } = req.user
+    const { id, category_id } = req.params
 
     try {
-      await knex('items').where('id', id).del()
+      await knex('items').where({ id, category_id }).del()
 
       return res.status(200).send({
         success: true,
